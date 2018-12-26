@@ -1,4 +1,4 @@
-package com.zt10.proxyPool.pool;
+package com.zt10.proxyPool.pool.schedule;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
