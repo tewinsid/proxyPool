@@ -3,9 +3,10 @@ package com.zt10.proxyPool.pool.schedule;
 import com.zt10.proxyPool.dao.RedisOperation;
 import com.zt10.proxyPool.pool.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
-
+@Component
 public class Adder {
     private long LOWERLIMIT = 50;
 

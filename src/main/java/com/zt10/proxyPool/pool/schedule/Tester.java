@@ -40,7 +40,8 @@ public class Tester {
         String[] proxyMessage = proxy.split(":");
         boolean flag = NetUtil.get(URL, proxyMessage[0], proxyMessage[1]);
         if (flag) {
-            redisOperation.put(proxy);
+            System.out.println(proxy + " is available");
+//            redisOperation.put(proxy);
         }
     }
 
