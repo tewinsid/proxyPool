@@ -1,5 +1,6 @@
 package com.zt10.proxyPool.pool.schedule;
 
+import com.zt10.proxyPool.dao.RedisOperation;
 import com.zt10.proxyPool.utils.NetUtil;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -11,33 +12,36 @@ import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class Tester {
-    @Autowired
-    private RedisTemplate redisTemplate;
-
     private final String URL = "http://www.baidu.com";
 
-    private final String KEY = "proxy";
+    @Autowired
+    public RedisOperation redisOperation;
+
 
     public void testRightHalf() {
-        ListOperations<String, String> pool = redisTemplate.opsForList();
-        List<String> proxys = pool.range(KEY, 0, pool.size("proxy") / 2);
+        List proxys = redisOperation.get(redisOperation.size() / 2);
+        proxysTestAndPut(proxys);
+    }
+
+    public void proxysTestAndPut(List proxys) {
         Iterator<String> it = proxys.iterator();
         while (it.hasNext()) {
-            //TODO 此处应使用线程池
             String proxy = it.next();
-            if (!availableDetection(proxy)) {
-                it.remove();
-            }
-            pool.remove(KEY, 0, proxy);
+            availableDetection(proxy);
         }
     }
 
-    private boolean availableDetection(String proxy) {
+    private void availableDetection(String proxy) {
+        //TODO 此处应使用线程池
         String[] proxyMessage = proxy.split(":");
-        return NetUtil.get(URL, proxyMessage[0], proxyMessage[1]);
+        boolean flag = NetUtil.get(URL, proxyMessage[0], proxyMessage[1]);
+        if (flag) {
+            redisOperation.put(proxy);
+        }
     }
 
 }

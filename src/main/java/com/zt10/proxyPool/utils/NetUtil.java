@@ -7,15 +7,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
-import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public class NetUtil {
-    public static Boolean get(String url, String ip, String port){
+    public static Boolean get(String url, String ip, String port) {
         HttpHost proxy = new HttpHost(ip, Integer.valueOf(port));
         DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
         CloseableHttpClient httpclient = HttpClients.custom().setRoutePlanner(routePlanner).build();
