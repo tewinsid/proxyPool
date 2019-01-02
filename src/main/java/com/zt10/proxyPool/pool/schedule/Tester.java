@@ -1,22 +1,25 @@
 package com.zt10.proxyPool.pool.schedule;
 
 import com.zt10.proxyPool.dao.RedisOperation;
+import com.zt10.proxyPool.exception.ThreadPoolException;
 import com.zt10.proxyPool.utils.NetUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.*;
 
 @Component
 public class Tester {
     private final String URL = "http://www.baidu.com";
 
     @Autowired
-    public RedisOperation redisOperation;
+    public  RedisOperation redisOperation;
 
 
     public void testRightHalf() {
+        System.out.println("tester is running");
         List proxys = redisOperation.get(redisOperation.size() / 2);
         proxysTestAndPut(proxys);
     }
@@ -30,14 +33,28 @@ public class Tester {
     }
 
     private void availableDetection(String proxy) {
-        //TODO 此处应使用线程池
-        String[] proxyMessage = proxy.split(":");
-        boolean flag = NetUtil.get(URL, proxyMessage[0], proxyMessage[1]);
-        if (flag) {
-            System.out.println(proxy + " is available");
-            redisOperation.put(proxy);
-        }
-        System.out.println(proxy + " is unavailable");
+        ExecutorService exec = new ThreadPoolExecutor(10,
+                10,
+                60L,
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>());
+        exec.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    String[] proxyMessage = proxy.split(":");
+                    boolean flag = NetUtil.get(URL, proxyMessage[0], proxyMessage[1]);
+                    if (flag) {
+                        System.out.println(proxy + " is available");
+                        redisOperation.put(proxy);
+                    }
+                    System.out.println(proxy + " is unavailable");
+                } catch (Exception e) {
+                    throw new ThreadPoolException("");
+                }
+
+            }
+        });
     }
 
 }

@@ -15,7 +15,6 @@ public class Schedule {
 
     @Scheduled(fixedRate = 20000)
     public void poolSchedule() {
-        System.out.println(" poolSchedule is running");
         adder.lengthDetection();
         tester.testRightHalf();
     }

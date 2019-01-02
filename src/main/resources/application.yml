@@ -5,3 +5,5 @@ spring:
     database: 0
     password: lalalademaxiya
     timeout: 60s
+server:
+  port: 80

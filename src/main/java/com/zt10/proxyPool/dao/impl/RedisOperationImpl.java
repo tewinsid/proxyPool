@@ -21,7 +21,7 @@ public class RedisOperationImpl implements com.zt10.proxyPool.dao.RedisOperation
     private final String KEY = "proxy";
 
     @Override
-    public List get(long count) {
+    public List<String> get(long count) {
         List<String> proxys = pool.range(KEY, 0, count - 1);
         pool.trim(KEY, count, -1);
         return proxys;
