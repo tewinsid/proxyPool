@@ -15,11 +15,16 @@ public class Tester {
     private final String URL = "http://www.baidu.com";
 
     @Autowired
-    public  RedisOperation redisOperation;
+    public RedisOperation redisOperation;
 
+    ExecutorService exec = new ThreadPoolExecutor(10,
+            10,
+            60L,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<Runnable>());
 
     public void testRightHalf() {
-        System.out.println("tester is running");
+//        System.out.println("tester is running");
         List proxys = redisOperation.get(redisOperation.size() / 2);
         proxysTestAndPut(proxys);
     }
@@ -33,15 +38,11 @@ public class Tester {
     }
 
     private void availableDetection(String proxy) {
-        ExecutorService exec = new ThreadPoolExecutor(10,
-                10,
-                60L,
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>());
         exec.execute(new Runnable() {
             @Override
             public void run() {
                 try {
+                    redisOperation.remove(proxy);
                     String[] proxyMessage = proxy.split(":");
                     boolean flag = NetUtil.get(URL, proxyMessage[0], proxyMessage[1]);
                     if (flag) {
@@ -50,6 +51,7 @@ public class Tester {
                     }
                     System.out.println(proxy + " is unavailable");
                 } catch (Exception e) {
+                    e.printStackTrace();
                     throw new ThreadPoolException("");
                 }
 

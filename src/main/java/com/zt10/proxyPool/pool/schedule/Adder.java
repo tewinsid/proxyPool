@@ -21,7 +21,7 @@ public class Adder {
 
     public void lengthDetection() {
         while (redisOperation.size() < LOWERLIMIT) {
-            System.out.println("adder is running");
+//            System.out.println("adder is running");
             List raw_proxys = getter.getProxys();
             tester.proxysTestAndPut(raw_proxys);
         }

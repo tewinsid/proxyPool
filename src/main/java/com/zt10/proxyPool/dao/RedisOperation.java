@@ -1,5 +1,6 @@
 package com.zt10.proxyPool.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface RedisOperation {
@@ -10,4 +11,6 @@ public interface RedisOperation {
     String pop();
 
     Long size();
+
+    void remove(String value);
 }

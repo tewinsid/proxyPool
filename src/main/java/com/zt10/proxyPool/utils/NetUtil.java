@@ -8,6 +8,7 @@ import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.NoRouteToHostException;
 import java.net.SocketTimeoutException;
 
 public class NetUtil {
@@ -49,7 +51,11 @@ public class NetUtil {
         CloseableHttpResponse response = null;
         try {
             response = httpclient.execute(get);
+        } catch (HttpHostConnectException e) {
+            return null;
         } catch (ConnectTimeoutException e) {
+            return null;
+        } catch (NoRouteToHostException e) {
             return null;
         } catch (SocketTimeoutException e) {
             return null;
