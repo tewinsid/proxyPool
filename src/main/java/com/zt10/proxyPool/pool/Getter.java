@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
 @Component
 public class Getter {
 
+    private int page_num = 0;
+
     public List getProxys() {
         List result = new ArrayList(40);
         for (Method method : Getter.class.getMethods()) {
@@ -29,14 +31,19 @@ public class Getter {
                 throw new BadHttpException("");
             }
         }
+        page_num++;
+        if (page_num > 1000) {
+            page_num = 0;
+        }
         return result;
     }
+
 
     private final Pattern freePattern = Pattern.compile("data-title=\"IP\">(.*?)</td>.*?\"PORT\">(.*?)</td>", Pattern.DOTALL);
 
     @ProxyWebsite
     public List freeProxy() {
-        String url = "https://www.kuaidaili.com/free/inha/";
+        String url = "https://www.kuaidaili.com/free/inha/" + page_num;
         String content = NetUtil.getInsideOfWallContent(url);
         Matcher m = freePattern.matcher(content);
         ArrayList result = new ArrayList(20);
@@ -48,9 +55,9 @@ public class Getter {
 
     private final Pattern xicidailiPattern = Pattern.compile("<td class=\"country\"><img src=\"//fs.xicidaili.com/images/flag/cn.png\" alt=\"Cn\" /></td>\\s*<td>(.*?)</td>\\s*<td>(.*?)</td>", Pattern.DOTALL);
 
-    @ProxyWebsite
+//    @ProxyWebsite
     public List xicidailiProxy() {
-        String url = "https://www.xicidaili.com/wt/1";
+        String url = "https://www.xicidaili.com/wt/" + page_num;
         String content = NetUtil.getInsideOfWallContent(url);
         Matcher m = xicidailiPattern.matcher(content);
         ArrayList result = new ArrayList(20);

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 @Component
 public class Adder {
-    private long LOWERLIMIT = 50;
+    private long LOWERLIMIT = 15;
 
     @Autowired
     public RedisOperation redisOperation;

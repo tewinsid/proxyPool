@@ -13,8 +13,9 @@ public class Schedule {
     @Autowired
     public Tester tester;
 
-    @Scheduled(fixedRate = 20000)
+    @Scheduled(cron = "* */1 * * * *")
     public void poolSchedule() {
+        System.out.println("process is running");
         adder.lengthDetection();
         tester.testRightHalf();
     }

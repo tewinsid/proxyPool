@@ -17,7 +17,7 @@ public class ProxyController {
 
     @RequestMapping("/")
     public String index() {
-        return "小纲代理程池，公开无秘，请勿压测。";
+        return "小纲代理程池，公开无密，请勿压测。";
     }
 
     @RequestMapping("/get")
