@@ -13,10 +13,13 @@ public class Schedule {
     @Autowired
     public Tester tester;
 
-    @Scheduled(cron = "* */1 * * * *")
-    public void poolSchedule() {
-        System.out.println("process is running");
+    @Scheduled(cron = "* */5 * * * ?")
+    public void adderSchedule() {
         adder.lengthDetection();
+    }
+
+    @Scheduled(cron = "* */3 * * * ?")
+    public void testerSchedule() {
         tester.testRightHalf();
     }
 }

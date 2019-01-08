@@ -24,7 +24,6 @@ public class Tester {
             new LinkedBlockingQueue<Runnable>());
 
     public void testRightHalf() {
-        System.out.println("tester is running");
         List proxys = redisOperation.get(redisOperation.size() / 2);
         proxysTestAndPut(proxys);
     }
@@ -45,8 +44,8 @@ public class Tester {
                     String[] proxyMessage = proxy.split(":");
                     boolean flag = NetUtil.get(URL, proxyMessage[0], proxyMessage[1]);
                     if (flag) {
-                        System.out.println(proxy + " is available");
                         redisOperation.put(proxy);
+                        System.out.println(proxy + "  is available");
                     } else {
                         redisOperation.remove(proxy);
                     }

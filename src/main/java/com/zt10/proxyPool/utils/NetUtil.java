@@ -23,7 +23,12 @@ import java.net.SocketTimeoutException;
 
 public class NetUtil {
     public static Boolean get(String url, String ip, String port) {
-        HttpResponse response = getResponse(ip, Integer.valueOf(port), url);
+        HttpResponse response = null;
+        try {
+            response = getResponse(ip, Integer.valueOf(port), url);
+        } catch (IOException e) {
+            return false;
+        }
         if (response == null) {
             return false;
         }
@@ -34,46 +39,35 @@ public class NetUtil {
         return false;
     }
 
-    private static HttpResponse getResponse(String ip, int port, String url) {
+    private static HttpResponse getResponse(String ip, int port, String url) throws IOException {
         HttpHost proxy = new HttpHost(ip, port);
         DefaultProxyRoutePlanner routePlanner = new DefaultProxyRoutePlanner(proxy);
         CloseableHttpClient httpclient = HttpClients.custom().setRoutePlanner(routePlanner).build();
 
         RequestConfig requestConfig = RequestConfig.custom()
-                .setSocketTimeout(1000)
-                .setConnectTimeout(1000)
+                .setSocketTimeout(5000)
+                .setConnectTimeout(5000)
                 .build();
 
         HttpGet get = new HttpGet(url);
 
         get.setConfig(requestConfig);
 
-        get.setHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.80 Safari/537.36");
+        get.setHeader("User-Agent", "Mozilla/5.0 (iPad; CPU OS 11_0 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) Version/11.0 Mobile/15A5341f Safari/604.1");
         CloseableHttpResponse response = null;
-        try {
-            response = httpclient.execute(get);
-        } catch (Exception e) {
-            return null;
-        } finally {
-            try {
-                if (response != null) {
-                    response.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new BadHttpException("bad get response close");
-            }
-        }
-        return response;
+        return httpclient.execute(get);
     }
 
 
     public static String getOutsideOfWallContent(String url) {
-        HttpResponse response = getResponse("54.39.138.151", 3128, url);
         String result = "";
         String temp = "";
         BufferedReader reader = null;
         try {
+            HttpResponse response = getResponse("127.0.0.1", 1080, url);
+            if (response == null) {
+                return "response is null";
+            }
             reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             while ((temp = reader.readLine()) != null) {
                 result += temp;
@@ -84,7 +78,9 @@ public class NetUtil {
             throw new BadHttpException("getOutsideOfWallContent exception");
         } finally {
             try {
-                reader.close();
+                if (reader != null) {
+                    reader.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new BadHttpException("getOutsideOfWallContent reader close");
