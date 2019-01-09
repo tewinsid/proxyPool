@@ -48,5 +48,8 @@ public class RedisOperationImpl implements com.zt10.proxyPool.dao.RedisOperation
         pool.remove(KEY, value);
     }
 
-
+    @Override
+    public boolean exist(String value) {
+        return pool.isMember(KEY, value);
+    }
 }

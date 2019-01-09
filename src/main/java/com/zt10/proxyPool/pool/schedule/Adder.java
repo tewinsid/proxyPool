@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 @Component
 public class Adder {
     private long LOWERLIMIT = 50;
@@ -21,9 +23,19 @@ public class Adder {
 
     public void lengthDetection() {
         while (redisOperation.size() < LOWERLIMIT) {
-//            System.out.println("adder is running");
             List raw_proxys = getter.getProxys();
-            tester.proxysTestAndPut(raw_proxys);
+
+            System.out.println("fetch " + raw_proxys.size() + "from internet");
+
+            tester.proxysTestAndPut(raw_proxys, "internet");
+
+            //防止目标网站封ip，每隔1分钟爬取一次
+            try {
+                TimeUnit.MINUTES.sleep(1);
+            } catch (InterruptedException e) {
+                System.out.println("sleep exception");
+                continue;
+            }
         }
     }
 }

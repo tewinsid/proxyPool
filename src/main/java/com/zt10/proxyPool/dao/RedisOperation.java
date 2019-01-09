@@ -13,4 +13,6 @@ public interface RedisOperation {
     Long size();
 
     void remove(String value);
+
+    boolean exist(String value);
 }

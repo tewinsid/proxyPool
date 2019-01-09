@@ -17,26 +17,31 @@ public class Tester {
     @Autowired
     public RedisOperation redisOperation;
 
-    ExecutorService exec = new ThreadPoolExecutor(10,
-            10,
+    ExecutorService exec = new ThreadPoolExecutor(8,
+            8,
             60L,
             TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>());
 
     public void testRightHalf() {
         List proxys = redisOperation.get(redisOperation.size() / 2);
-        proxysTestAndPut(proxys);
+        System.out.println("get " + proxys.size() + " from redis");
+        proxysTestAndPut(proxys, "redis");
     }
 
-    public void proxysTestAndPut(List proxys) {
+    public void proxysTestAndPut(List proxys, String prefix) {
         Iterator<String> it = proxys.iterator();
         while (it.hasNext()) {
             String proxy = it.next();
-            availableDetection(proxy);
+            boolean condition = "redis".equals(prefix) ||
+                    ("internet".equals(prefix) && !redisOperation.exist(proxy));
+            if (condition) {
+                availableDetection(proxy, prefix);
+            }
         }
     }
 
-    private void availableDetection(String proxy) {
+    private void availableDetection(final String proxy,final String prefix) {
         exec.execute(new Runnable() {
             @Override
             public void run() {
@@ -45,7 +50,7 @@ public class Tester {
                     boolean flag = NetUtil.get(URL, proxyMessage[0], proxyMessage[1]);
                     if (flag) {
                         redisOperation.put(proxy);
-                        System.out.println(proxy + "  is available");
+                        System.out.println(prefix + "  ---  " + proxy + "  is available");
                     } else {
                         redisOperation.remove(proxy);
                     }

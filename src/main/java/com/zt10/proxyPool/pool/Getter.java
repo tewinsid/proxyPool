@@ -48,13 +48,20 @@ public class Getter {
     @ProxyWebsite("0")
     public List freeProxy() {
         String url = "https://www.kuaidaili.com/free/inha/" + page_num;
-        String content = NetUtil.getInsideOfWallContent(url);
-        Matcher m = freePattern.matcher(content);
-        ArrayList result = new ArrayList(20);
-        while (m.find()) {
-            result.add(m.group(1) + ":" + m.group(2));
+
+        try {
+            String content = NetUtil.getInsideOfWallContent(url);
+            Matcher m = freePattern.matcher(content);
+            ArrayList result = new ArrayList(20);
+            while (m.find()) {
+                result.add(m.group(1) + ":" + m.group(2));
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println(url + " connect error");
+            return new ArrayList(0);
         }
-        return result;
+
     }
 
     private final Pattern xicidailiPattern = Pattern.compile("<td class=\"country\"><img src=\"//fs.xicidaili.com/images/flag/cn.png\" alt=\"Cn\" /></td>\\s*<td>(.*?)</td>\\s*<td>(.*?)</td>", Pattern.DOTALL);
@@ -62,13 +69,19 @@ public class Getter {
     @ProxyWebsite("0")
     public List xicidailiProxy() {
         String url = "https://www.xicidaili.com/wt/" + page_num;
-        String content = NetUtil.getInsideOfWallContent(url);
-        Matcher m = xicidailiPattern.matcher(content);
-        ArrayList result = new ArrayList(20);
-        while (m.find()) {
-            result.add(m.group(1) + ":" + m.group(2));
+        try {
+            String content = NetUtil.getInsideOfWallContent(url);
+            Matcher m = xicidailiPattern.matcher(content);
+            ArrayList result = new ArrayList(20);
+            while (m.find()) {
+                result.add(m.group(1) + ":" + m.group(2));
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println(url + " connect error");
+            return new ArrayList(0);
         }
-        return result;
+
     }
 
     private final Pattern wuyouPattern = Pattern.compile("<ul class=\"l2\">\\s*<span><li>(.*?)</li></span>.*?port.*?\">(.*?)</li></span>");
@@ -76,13 +89,19 @@ public class Getter {
     @ProxyWebsite("1")
     public List wuyouProxy() {
         String url = "http://www.data5u.com/";
-        String content = NetUtil.getInsideOfWallContent(url);
-        Matcher m = wuyouPattern.matcher(content);
-        ArrayList result = new ArrayList(20);
-        while (m.find()) {
-            result.add(m.group(1) + ":" + m.group(2));
+        try {
+            String content = NetUtil.getInsideOfWallContent(url);
+            Matcher m = wuyouPattern.matcher(content);
+            ArrayList result = new ArrayList(20);
+            while (m.find()) {
+                result.add(m.group(1) + ":" + m.group(2));
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println(url + " connect error");
+            return new ArrayList(0);
         }
-        return result;
+
     }
 
     private final Pattern xroxyPattern = Pattern.compile("class=\"sorting_1\">(.*?)</td>\\W+<td>(.*?)</td>");
@@ -90,12 +109,18 @@ public class Getter {
     @ProxyWebsite("1")
     public List xroxyProxy() {
         String url = "https://www.xroxy.com/free-proxy-lists/?country=CN";
-        String content = NetUtil.getOutsideOfWallContent(url);
-        Matcher m = xroxyPattern.matcher(content);
-        ArrayList result = new ArrayList(20);
-        while (m.find()) {
-            result.add(m.group(1) + ":" + m.group(2));
+        try {
+            String content = NetUtil.getOutsideOfWallContent(url);
+            Matcher m = xroxyPattern.matcher(content);
+            ArrayList result = new ArrayList(20);
+            while (m.find()) {
+                result.add(m.group(1) + ":" + m.group(2));
+            }
+            return result;
+        } catch (Exception e) {
+            System.out.println(url + " connect error");
+            return new ArrayList(0);
         }
-        return result;
+
     }
 }

@@ -13,12 +13,12 @@ public class Schedule {
     @Autowired
     public Tester tester;
 
-    @Scheduled(cron = "* */5 * * * ?")
+    @Scheduled(cron = "* */3 * * * ?")
     public void adderSchedule() {
         adder.lengthDetection();
     }
 
-    @Scheduled(cron = "* */3 * * * ?")
+    @Scheduled(cron = "* */2 * * * ?")
     public void testerSchedule() {
         tester.testRightHalf();
     }
