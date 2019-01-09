@@ -7,19 +7,22 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.conn.ConnectTimeoutException;
-import org.apache.http.conn.HttpHostConnectException;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
-import org.springframework.stereotype.Component;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.NoRouteToHostException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
+import java.net.InetSocketAddress;
 
 public class NetUtil {
     public static Boolean get(String url, String ip, String port) {
@@ -59,12 +62,45 @@ public class NetUtil {
     }
 
 
+
+    private static HttpResponse getSocksProxyResposne(String url) throws IOException{
+        InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1", 1080);
+        HttpClientContext context = HttpClientContext.create();
+        context.setAttribute("socks.address", socksaddr);
+
+        Registry<ConnectionSocketFactory> r = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("http", PlainConnectionSocketFactory.INSTANCE)
+                .register("https", new SocksSSLConnectionSocketFactory(SSLContexts.createSystemDefault()))
+                .build();
+
+        HttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(r);
+
+        CloseableHttpClient httpclient_socks = HttpClients
+                .custom()
+                .setConnectionManager(cm)
+                .build();
+
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(5000)
+                .setConnectTimeout(5000)
+                .build();
+
+        HttpHost target = new HttpHost("translate.google.com", 80, "https");
+        HttpGet request = new HttpGet("/");
+
+        request.setConfig(requestConfig);
+
+        return httpclient_socks.execute(target, request, context);
+    }
+
+
     public static String getOutsideOfWallContent(String url) {
         String result = "";
         String temp = "";
         BufferedReader reader = null;
         try {
-            HttpResponse response = getResponse("127.0.0.1", 1080, url);
+//            HttpResponse response = getResponse("127.0.0.1", 1080, url);
+            HttpResponse response = getSocksProxyResposne(url);
             if (response == null) {
                 return "response is null";
             }
@@ -73,7 +109,7 @@ public class NetUtil {
                 result += temp;
             }
             return result;
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new BadHttpException("getOutsideOfWallContent exception");
         } finally {
