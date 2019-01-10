@@ -7,7 +7,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
@@ -22,7 +21,6 @@ import org.apache.http.ssl.SSLContexts;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
 
 public class NetUtil {
     public static Boolean get(String url, String ip, String port) {
@@ -64,9 +62,9 @@ public class NetUtil {
 
 
     private static HttpResponse getSocksProxyResposne(String url) throws IOException{
-        InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1", 1080);
-        HttpClientContext context = HttpClientContext.create();
-        context.setAttribute("socks.address", socksaddr);
+//        InetSocketAddress socksaddr = new InetSocketAddress("127.0.0.1", 1080);
+//        HttpClientContext context = HttpClientContext.create();
+//        context.setAttribute("socks.address", socksaddr);
 
         Registry<ConnectionSocketFactory> r = RegistryBuilder.<ConnectionSocketFactory>create()
                 .register("http", PlainConnectionSocketFactory.INSTANCE)
@@ -85,12 +83,11 @@ public class NetUtil {
                 .setConnectTimeout(5000)
                 .build();
 
-        HttpHost target = new HttpHost("translate.google.com", 80, "https");
-        HttpGet request = new HttpGet("/");
+        HttpGet get = new HttpGet(url);
 
-        request.setConfig(requestConfig);
+        get.setConfig(requestConfig);
 
-        return httpclient_socks.execute(target, request, context);
+        return httpclient_socks.execute(get);
     }
 
 
@@ -127,8 +124,8 @@ public class NetUtil {
     public static String getInsideOfWallContent(String url) {
         HttpClient httpClient = HttpClients.createDefault();
         HttpGet get = new HttpGet(url);
-        get.setHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.80 Safari/537.36");
-        get.setHeader("Cookie", "yd_cookie=85db9b58-15ea-4ff205f11ee1907f81fc26d28fc70c2fcef4; _ydclearance=1c852b147583b676b31d9f07-8bb2-4949-969f-5e943d3b2f3e-1545969219; Hm_lvt_1761fabf3c988e7f04bec51acd4073f4=1545717687,1545962028; Hm_lpvt_1761fabf3c988e7f04bec51acd4073f4=1545964520");
+        get.setHeader("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36");
+        get.setHeader("Cookie", "yd_cookie=8554f8a7-ad51-4025522bd7f2431ba22fe11b930cc9bb9b3f; _ydclearance=a1ab074da0ef53e16da06b0e-f3ac-426f-9674-79974267d0eb-1547133269; Hm_lvt_1761fabf3c988e7f04bec51acd4073f4=1547126072; Hm_lpvt_1761fabf3c988e7f04bec51acd4073f4=1547128288");
         String result = "";
         String temp = "";
         BufferedReader reader = null;

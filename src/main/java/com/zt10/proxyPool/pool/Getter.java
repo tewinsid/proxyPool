@@ -3,8 +3,6 @@ package com.zt10.proxyPool.pool;
 import com.zt10.proxyPool.exception.BadHttpException;
 import com.zt10.proxyPool.utils.NetUtil;
 import com.zt10.proxyPool.utils.ProxyWebsite;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -16,6 +14,7 @@ import java.util.regex.Pattern;
 @Component
 public class Getter {
 
+    //TODO 此处通过类变量进行页码传递，考虑通过参数形式传递进入方法，尽量减少副作用
     private int page_num = 1;
 
     public List getProxys() {
@@ -27,7 +26,8 @@ public class Getter {
                     boolean condition = "0".equals(proxyWebsite.value()) ||
                             "1".equals(proxyWebsite.value()) && (page_num % 50 == 0 || page_num == 1);
                     if (condition) {
-                        List temp = (List) method.invoke(new Getter());
+
+                        List temp = (List) method.invoke(this);
                         result.addAll(temp);
                     }
                 }
@@ -48,19 +48,7 @@ public class Getter {
     @ProxyWebsite("0")
     public List freeProxy() {
         String url = "https://www.kuaidaili.com/free/inha/" + page_num;
-
-        try {
-            String content = NetUtil.getInsideOfWallContent(url);
-            Matcher m = freePattern.matcher(content);
-            ArrayList result = new ArrayList(20);
-            while (m.find()) {
-                result.add(m.group(1) + ":" + m.group(2));
-            }
-            return result;
-        } catch (Exception e) {
-            System.out.println(url + " connect error");
-            return new ArrayList(0);
-        }
+        return new RegexTemplate().doProcess(freePattern, url, new InSidRegexProcessor());
 
     }
 
@@ -69,18 +57,7 @@ public class Getter {
     @ProxyWebsite("0")
     public List xicidailiProxy() {
         String url = "https://www.xicidaili.com/wt/" + page_num;
-        try {
-            String content = NetUtil.getInsideOfWallContent(url);
-            Matcher m = xicidailiPattern.matcher(content);
-            ArrayList result = new ArrayList(20);
-            while (m.find()) {
-                result.add(m.group(1) + ":" + m.group(2));
-            }
-            return result;
-        } catch (Exception e) {
-            System.out.println(url + " connect error");
-            return new ArrayList(0);
-        }
+        return new RegexTemplate().doProcess(xicidailiPattern, url, new InSidRegexProcessor());
 
     }
 
@@ -89,18 +66,7 @@ public class Getter {
     @ProxyWebsite("1")
     public List wuyouProxy() {
         String url = "http://www.data5u.com/";
-        try {
-            String content = NetUtil.getInsideOfWallContent(url);
-            Matcher m = wuyouPattern.matcher(content);
-            ArrayList result = new ArrayList(20);
-            while (m.find()) {
-                result.add(m.group(1) + ":" + m.group(2));
-            }
-            return result;
-        } catch (Exception e) {
-            System.out.println(url + " connect error");
-            return new ArrayList(0);
-        }
+        return new RegexTemplate().doProcess(wuyouPattern, url, new InSidRegexProcessor());
 
     }
 
@@ -109,18 +75,53 @@ public class Getter {
     @ProxyWebsite("1")
     public List xroxyProxy() {
         String url = "https://www.xroxy.com/free-proxy-lists/?country=CN";
-        try {
-            String content = NetUtil.getOutsideOfWallContent(url);
-            Matcher m = xroxyPattern.matcher(content);
-            ArrayList result = new ArrayList(20);
-            while (m.find()) {
-                result.add(m.group(1) + ":" + m.group(2));
-            }
-            return result;
-        } catch (Exception e) {
-            System.out.println(url + " connect error");
-            return new ArrayList(0);
-        }
+        return new RegexTemplate().doProcess(xroxyPattern, url, new OutSidRegexProcessor());
+    }
 
+    private final Pattern sixsixPattern = Pattern.compile("((?:(?:25[0-5]|2[0-4]\\d|(?:1\\d{2}|[1-9]?\\d))\\.){3}(?:25[0-5]|2[0-4]\\d|(?:1\\d{2}|[1-9]?\\d)))</td><td>(.*?)</td>");
+    @ProxyWebsite("0")
+    public List sixsixProxy() {
+        String url = "http://www.66ip.cn/" + page_num + ".html";
+        return new RegexTemplate().doProcess(sixsixPattern, url, new InSidRegexProcessor());
+    }
+
+    //TODO 需要cookie
+//    private final Pattern permPattern = Pattern.compile("");
+//    @ProxyWebsite("1")
+//    public List permProxy() {
+//        String url = "http://www.66ip.cn/" + page_num + ".html";
+//        return new RegexTemplate().doProcess(sixsixPattern, url, new OutSidRegexProcessor());
+//    }
+
+
+}
+
+interface RegexProcess {
+    String process(String url);
+}
+
+class RegexTemplate {
+    public List doProcess(Pattern pattern, String url, RegexProcess processor) {
+        String content = processor.process(url);
+        Matcher m = pattern.matcher(content);
+        ArrayList result = new ArrayList(20);
+        while (m.find()) {
+            result.add(m.group(1) + ":" + m.group(2));
+        }
+        return result;
+    }
+}
+
+class OutSidRegexProcessor implements RegexProcess {
+    @Override
+    public String process(String url) {
+        return NetUtil.getOutsideOfWallContent(url);
+    }
+}
+
+class InSidRegexProcessor implements RegexProcess {
+    @Override
+    public String process(String url) {
+        return NetUtil.getInsideOfWallContent(url);
     }
 }

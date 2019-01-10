@@ -17,8 +17,8 @@ public class Tester {
     @Autowired
     public RedisOperation redisOperation;
 
-    ExecutorService exec = new ThreadPoolExecutor(8,
-            8,
+    ExecutorService exec = new ThreadPoolExecutor(10,
+            10,
             60L,
             TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>());
