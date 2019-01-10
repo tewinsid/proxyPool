@@ -102,7 +102,13 @@ interface RegexProcess {
 
 class RegexTemplate {
     public List doProcess(Pattern pattern, String url, RegexProcess processor) {
-        String content = processor.process(url);
+        String content = "";
+        try {
+            content = processor.process(url);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BadHttpException(url);
+        }
         Matcher m = pattern.matcher(content);
         ArrayList result = new ArrayList(20);
         while (m.find()) {
